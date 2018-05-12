@@ -31,10 +31,11 @@ import com.zarinpal.libs.views.utitlity.DrawableResource;
 
 public class ZarinImageView extends android.support.v7.widget.AppCompatImageView {
 
-    private Context context;
-    private boolean isBlur;
-    private boolean isGradient;
-    private int     tintColor;
+    private Context               context;
+    private boolean               isBlur;
+    private boolean               isGradient;
+    private int                   tintColor;
+    private OnLoadedImageListener listener;
 
     public ZarinImageView(Context context) {
         super(context);
@@ -51,12 +52,6 @@ public class ZarinImageView extends android.support.v7.widget.AppCompatImageView
         this.context = context;
     }
 
-
-    public interface OnTouchCompactListener {
-        void onActionDown();
-
-        void onActionUp();
-    }
 
     public void setOnTouchCompactListener(final OnTouchCompactListener listener) {
         this.setOnTouchListener(new View.OnTouchListener() {
@@ -75,6 +70,10 @@ public class ZarinImageView extends android.support.v7.widget.AppCompatImageView
     public void setTintColor(int color) {
         this.tintColor = color;
         this.setColorFilter(color);
+    }
+
+    public void setListener(OnLoadedImageListener l) {
+        this.listener = l;
     }
 
     public int getTintColor() {
@@ -129,6 +128,9 @@ public class ZarinImageView extends android.support.v7.widget.AppCompatImageView
 
 
                 ZarinImageView.this.setImageBitmap(bitmap);
+                if (listener != null) {
+                    listener.onSuccessLoadImage();
+                }
 
 
             }
@@ -136,12 +138,17 @@ public class ZarinImageView extends android.support.v7.widget.AppCompatImageView
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
                 loadAsyncBitmap(url);
+                if (listener != null) {
+                    listener.onFaildLoadImage();
+                }
 
             }
 
             @Override
             public void onPrepareLoad(Drawable placeHolderDrawable) {
-
+                if (listener != null) {
+                    listener.onFaildLoadImage();
+                }
             }
         });
     }
@@ -213,6 +220,19 @@ public class ZarinImageView extends android.support.v7.widget.AppCompatImageView
                 valueAnimator.start();
             }
         }, 250);
+    }
+
+    public interface OnTouchCompactListener {
+        void onActionDown();
+
+        void onActionUp();
+    }
+
+    public interface OnLoadedImageListener {
+
+        void onSuccessLoadImage();
+
+        void onFaildLoadImage();
     }
 }
 
